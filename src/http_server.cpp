@@ -190,7 +190,11 @@ bool http_server_setup() {
   // minus a few reserved). Larger pool plus shorter waits = faster recovery
   // when a client dies mid-stream.
   config.max_open_sockets = 7;
-  config.send_wait_timeout = 2;
+  // 5s send tolerance: the AI-Thinker antenna and crowded 2.4GHz mean a
+  // single frame can take >2s to push under load. A tighter timeout fires
+  // mid-stream and looks to the bridge like the cam died. recv stays short
+  // since stream clients never send anything after the GET.
+  config.send_wait_timeout = 5;
   config.recv_wait_timeout = 2;
 
   if (httpd_start(&s_index_httpd, &config) != ESP_OK) {
